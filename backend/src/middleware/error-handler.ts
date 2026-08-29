@@ -9,10 +9,10 @@ export function errorHandler(err: Error, req: Request, res: Response, _next: Nex
 
   if (err instanceof ZodError) {
     const errors: Record<string, string[]> = {};
-    err.errors.forEach((e) => {
-      const field = e.path.join('.');
+    err.issues.forEach((issue) => {
+      const field = issue.path.map(String).join('.');
       if (!errors[field]) errors[field] = [];
-      errors[field].push(e.message);
+      errors[field].push(issue.message);
     });
     sendError(res, 422, 'VALIDATION_ERROR', 'Validation failed', errors);
     return;

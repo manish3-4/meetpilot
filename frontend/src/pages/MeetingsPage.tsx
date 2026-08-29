@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import api from '../api/client'
-import { Meeting } from '../types'
+import type { Meeting } from '../types'
 
 export default function MeetingsPage() {
   const [meetings, setMeetings] = useState<Meeting[]>([])

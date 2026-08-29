@@ -7,6 +7,7 @@ import * as aiService from './ai.service';
 import * as schedulerService from '../scheduler/scheduler.service';
 import { getPrisma } from '../../config/database';
 import { logger } from '../../shared/logger';
+import { BadRequestError } from '../../shared/errors';
 
 const router = Router();
 
@@ -153,13 +154,12 @@ router.post('/schedule', authenticate, async (req: Request, res: Response, next:
       where: {
         conversationId,
         role: 'assistant',
-        structuredOutput: { not: null },
       },
       orderBy: { createdAt: 'desc' },
     });
 
     if (!lastMessage?.structuredOutput) {
-      throw new z.ZodError([{ code: 'invalid_type', expected: 'object', received: 'null', path: ['conversationId'], message: 'No scheduling context found' }]);
+      throw new BadRequestError('No scheduling context found');
     }
 
     const output = lastMessage.structuredOutput as {

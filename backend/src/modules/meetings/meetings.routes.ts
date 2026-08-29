@@ -55,7 +55,7 @@ router.get('/', authenticate, async (req: Request, res: Response, next: NextFunc
 
 router.get('/:id', authenticate, async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const meeting = await meetingsService.getMeetingById(req.params.id, req.user!.userId);
+    const meeting = await meetingsService.getMeetingById(String(req.params.id), req.user!.userId);
     sendSuccess(res, meeting);
   } catch (error) {
     next(error);
@@ -65,7 +65,7 @@ router.get('/:id', authenticate, async (req: Request, res: Response, next: NextF
 router.patch('/:id', authenticate, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const body = updateMeetingSchema.parse(req.body);
-    const meeting = await meetingsService.updateMeeting(req.params.id, req.user!.userId, {
+    const meeting = await meetingsService.updateMeeting(String(req.params.id), req.user!.userId, {
       ...body,
       start: body.start ? new Date(body.start) : undefined,
       end: body.end ? new Date(body.end) : undefined,
@@ -78,7 +78,7 @@ router.patch('/:id', authenticate, async (req: Request, res: Response, next: Nex
 
 router.delete('/:id', authenticate, async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const result = await meetingsService.deleteMeeting(req.params.id, req.user!.userId);
+    const result = await meetingsService.deleteMeeting(String(req.params.id), req.user!.userId);
     sendSuccess(res, result);
   } catch (error) {
     next(error);
@@ -87,7 +87,7 @@ router.delete('/:id', authenticate, async (req: Request, res: Response, next: Ne
 
 router.post('/:id/confirm', authenticate, async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const result = await meetingsService.confirmMeeting(req.params.id, req.user!.userId);
+    const result = await meetingsService.confirmMeeting(String(req.params.id), req.user!.userId);
     sendSuccess(res, result);
   } catch (error) {
     next(error);

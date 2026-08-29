@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
 import path from 'path';
 
-dotenv.config({ path: path.resolve(__dirname, '../../.env') });
+dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
 
 export const config = {
   nodeEnv: process.env.NODE_ENV || 'development',
@@ -11,8 +11,8 @@ export const config = {
   jwt: {
     secret: process.env.JWT_SECRET!,
     refreshSecret: process.env.JWT_REFRESH_SECRET!,
-    expiresIn: '15m',
-    refreshExpiresIn: '7d',
+    expiresIn: 900, // 15 minutes in seconds
+    refreshExpiresIn: 604800, // 7 days in seconds
   },
   google: {
     clientId: process.env.GOOGLE_CLIENT_ID!,

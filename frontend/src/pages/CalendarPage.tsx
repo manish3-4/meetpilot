@@ -4,7 +4,7 @@ import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import interactionPlugin from '@fullcalendar/interaction'
 import api from '../api/client'
-import { CalendarEvent } from '../types'
+import type { CalendarEvent } from '../types'
 
 export default function CalendarPage() {
   const [events, setEvents] = useState<CalendarEvent[]>([])
@@ -60,7 +60,7 @@ export default function CalendarPage() {
       ) : (
         <div className="bg-white border border-gray-200 rounded-lg p-4">
           <FullCalendar
-            plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+            plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin] as any}
             initialView="dayGridMonth"
             headerToolbar={{
               left: 'prev,next today',

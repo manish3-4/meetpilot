@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import api from '../api/client'
-import { TimeSlot, SchedulingIntent } from '../types'
+import type { TimeSlot, SchedulingIntent } from '../types'
 
 interface Message {
   id: string

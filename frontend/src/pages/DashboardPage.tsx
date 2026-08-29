@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import api from '../api/client'
 import { useAuth } from '../hooks/useAuth'
-import { Meeting } from '../types'
+import type { Meeting } from '../types'
 
 export default function DashboardPage() {
   const { user } = useAuth()

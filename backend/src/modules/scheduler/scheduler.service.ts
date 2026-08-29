@@ -35,11 +35,11 @@ export async function findSlots(
     }));
 
   // Get calendar events for all participants
-  const allEvents: Array<{ start: Date; end: Date }> = [];
+  const allEvents: Array<{ start: Date; end: Date; available: boolean }> = [];
 
   // Get current user's events
   const userEvents = await getEvents(userId, request.dateRange.start, request.dateRange.end);
-  allEvents.push(...userEvents.map((e) => ({ start: e.start, end: e.end })));
+  allEvents.push(...userEvents.map((e) => ({ start: e.start, end: e.end, available: false })));
 
   // Get participant events (if they are users in the system)
   for (const participant of request.participants) {
@@ -53,7 +53,7 @@ export async function findSlots(
         request.dateRange.start,
         request.dateRange.end
       );
-      allEvents.push(...participantEvents.map((e) => ({ start: e.start, end: e.end })));
+      allEvents.push(...participantEvents.map((e) => ({ start: e.start, end: e.end, available: false })));
     }
   }
 

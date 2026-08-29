@@ -6,6 +6,7 @@ import { sendSuccess } from '../../shared/api-response';
 import { getRedis } from '../../config/redis';
 import * as calendarService from './calendar.service';
 import { config } from '../../config';
+import { BadRequestError } from '../../shared/errors';
 
 const router = Router();
 
@@ -59,7 +60,7 @@ router.get('/accounts', authenticate, async (req: Request, res: Response, next: 
 
 router.delete('/accounts/:id', authenticate, async (req: Request, res: Response, next: NextFunction) => {
   try {
-    await calendarService.disconnectCalendar(req.user!.userId, req.params.id);
+    await calendarService.disconnectCalendar(req.user!.userId, String(req.params.id));
     sendSuccess(res, { message: 'Calendar disconnected' });
   } catch (error) {
     next(error);
@@ -73,7 +74,7 @@ router.get('/events', authenticate, async (req: Request, res: Response, next: Ne
     const endDate = new Date(end);
 
     if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
-      throw new z.ZodError([{ code: 'invalid_type', expected: 'string', received: 'string', path: ['start'], message: 'Invalid date format' }]);
+      throw new BadRequestError('Invalid date format');
     }
 
     const events = await calendarService.getEvents(req.user!.userId, startDate, endDate);
@@ -90,7 +91,7 @@ router.get('/availability', authenticate, async (req: Request, res: Response, ne
     const endDate = new Date(end);
 
     if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
-      throw new z.ZodError([{ code: 'invalid_type', expected: 'string', received: 'string', path: ['start'], message: 'Invalid date format' }]);
+      throw new BadRequestError('Invalid date format');
     }
 
     const availability = await calendarService.getAvailability(req.user!.userId, startDate, endDate);

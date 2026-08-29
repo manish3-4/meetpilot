@@ -16,12 +16,13 @@ model User {
   createdAt     DateTime @default(now()) @map("created_at")
   updatedAt     DateTime @updatedAt @map("updated_at")
 
-  refreshTokens         RefreshToken[]
-  calendarAccounts      CalendarAccount[]
-  meetings              MeetingParticipant[]
-  availabilityPreferences AvailabilityPreference[]
-  aiConversations       AIConversation[]
-  createdMeetings       Meeting[]               @relation("MeetingCreator")
+  refreshTokens            RefreshToken[]
+  calendarAccounts         CalendarAccount[]
+  meetings                 MeetingParticipant[]
+  availabilityPreferences  AvailabilityPreference[]
+  aiConversations          AIConversation[]
+  createdMeetings          Meeting[]               @relation("MeetingCreator")
+  schedulingRequests       SchedulingRequest[]
 
   @@map("users")
 }
@@ -53,7 +54,8 @@ model CalendarAccount {
   createdAt       DateTime @default(now()) @map("created_at")
   updatedAt       DateTime @updatedAt @map("updated_at")
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user          User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  calendarEvents CalendarEvent[]
 
   @@unique([userId, providerAccountId])
   @@index([userId])

@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { authenticate } from '../../middleware/auth';
 import { sendSuccess } from '../../shared/api-response';
 import * as usersService from './users.service';
+import { BadRequestError } from '../../shared/errors';
 
 const router = Router();
 
@@ -47,9 +48,9 @@ router.get('/me/preferences', authenticate, async (req: Request, res: Response, 
 
 router.patch('/me/preferences/:dayOfWeek', authenticate, async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const dayOfWeek = parseInt(req.params.dayOfWeek, 10);
+    const dayOfWeek = parseInt(String(req.params.dayOfWeek), 10);
     if (isNaN(dayOfWeek) || dayOfWeek < 0 || dayOfWeek > 6) {
-      throw new z.ZodError([{ code: 'invalid_type', expected: 'number', received: 'string', path: ['dayOfWeek'], message: 'Day of week must be 0-6' }]);
+      throw new BadRequestError('Day of week must be 0-6');
     }
     const body = updatePreferencesSchema.parse(req.body);
     const preference = await usersService.updatePreferences(req.user!.userId, dayOfWeek, body);
