@@ -1,0 +1,190 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  name          String
+  passwordHash  String   @map("password_hash")
+  timezone      String   @default("UTC")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  refreshTokens         RefreshToken[]
+  calendarAccounts      CalendarAccount[]
+  meetings              MeetingParticipant[]
+  availabilityPreferences AvailabilityPreference[]
+  aiConversations       AIConversation[]
+  createdMeetings       Meeting[]               @relation("MeetingCreator")
+
+  @@map("users")
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String   @map("user_id")
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("refresh_tokens")
+}
+
+model CalendarAccount {
+  id              String   @id @default(cuid())
+  userId          String   @map("user_id")
+  provider        String
+  providerAccountId String @map("provider_account_id")
+  accessToken     String   @map("access_token")
+  refreshToken    String?  @map("refresh_token")
+  tokenExpiry     DateTime? @map("token_expiry")
+  calendarId      String?  @map("calendar_id")
+  calendarName    String?  @map("calendar_name")
+  isDefault       Boolean  @default(false) @map("is_default")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, providerAccountId])
+  @@index([userId])
+  @@map("calendar_accounts")
+}
+
+model CalendarEvent {
+  id              String   @id @default(cuid())
+  calendarAccountId String @map("calendar_account_id")
+  externalEventId String   @map("external_event_id")
+  title           String
+  description     String?
+  start           DateTime
+  end             DateTime
+  allDay          Boolean  @default(false) @map("all_day")
+  location        String?
+  recurrenceRule  String?  @map("recurrence_rule")
+  status          String   @default("confirmed")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  calendarAccount CalendarAccount @relation(fields: [calendarAccountId], references: [id], onDelete: Cascade)
+
+  @@unique([calendarAccountId, externalEventId])
+  @@index([calendarAccountId, start, end])
+  @@map("calendar_events")
+}
+
+model Meeting {
+  id            String   @id @default(cuid())
+  title         String
+  description   String?
+  start         DateTime
+  end           DateTime
+  durationMinutes Int    @map("duration_minutes")
+  status        String   @default("SCHEDULED")
+  timezone      String   @default("UTC")
+  location      String?
+  meetingLink   String?  @map("meeting_link")
+  externalEventId String? @map("external_event_id")
+  creatorId     String   @map("creator_id")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  creator     User                @relation("MeetingCreator", fields: [creatorId], references: [id])
+  participants MeetingParticipant[]
+  schedulingRequests SchedulingRequest[]
+
+  @@index([creatorId, start])
+  @@index([status])
+  @@map("meetings")
+}
+
+model MeetingParticipant {
+  id        String   @id @default(cuid())
+  meetingId String   @map("meeting_id")
+  userId    String?  @map("user_id")
+  email     String
+  name      String?
+  status    String   @default("PENDING")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  meeting Meeting @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  user    User?   @relation(fields: [userId], references: [id])
+
+  @@unique([meetingId, email])
+  @@index([meetingId])
+  @@index([userId])
+  @@map("meeting_participants")
+}
+
+model AvailabilityPreference {
+  id                String   @id @default(cuid())
+  userId            String   @map("user_id")
+  dayOfWeek         Int      @map("day_of_week")
+  startTime         String   @map("start_time")
+  endTime           String   @map("end_time")
+  isAvailable       Boolean  @default(true) @map("is_available")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, dayOfWeek])
+  @@map("availability_preferences")
+}
+
+model SchedulingRequest {
+  id              String   @id @default(cuid())
+  userId          String   @map("user_id")
+  meetingId       String?  @map("meeting_id")
+  intent          String
+  rawInput        String   @map("raw_input")
+  parsedRequest   Json     @map("parsed_request")
+  suggestedSlots  Json     @map("suggested_slots")
+  selectedSlot    Json?    @map("selected_slot")
+  status          String   @default("PENDING")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  meeting Meeting? @relation(fields: [meetingId], references: [id])
+
+  @@index([userId, createdAt])
+  @@map("scheduling_requests")
+}
+
+model AIConversation {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  title     String?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user     User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages AIMessage[]
+
+  @@index([userId, createdAt])
+  @@map("ai_conversations")
+}
+
+model AIMessage {
+  id              String   @id @default(cuid())
+  conversationId  String   @map("conversation_id")
+  role            String
+  content         String
+  structuredOutput Json?  @map("structured_output")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  conversation AIConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId, createdAt])
+  @@map("ai_messages")
+}

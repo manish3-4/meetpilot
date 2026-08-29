@@ -1,0 +1,38 @@
+{
+  "name": "meetpilot",
+  "version": "1.0.0",
+  "description": "AI-powered meeting scheduler",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "setup": "npm run setup:backend && npm run setup:frontend",
+    "setup:backend": "cd backend && npm install && npx prisma generate && npx prisma migrate dev",
+    "setup:frontend": "cd frontend && npm install",
+    "build": "npm run build:backend && npm run build:frontend",
+    "build:backend": "cd backend && npm run build",
+    "build:frontend": "cd frontend && npm run build",
+    "start": "concurrently \"npm run start:backend\" \"npm run start:frontend\"",
+    "start:backend": "cd backend && npm start",
+    "start:frontend": "cd frontend && npm run preview",
+    "db:generate": "cd backend && npx prisma generate",
+    "db:migrate": "cd backend && npx prisma migrate dev",
+    "db:studio": "cd backend && npx prisma studio",
+    "db:seed": "cd backend && npx prisma db seed"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/manish3-4/meetpilot.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/manish3-4/meetpilot/issues"
+  },
+  "homepage": "https://github.com/manish3-4/meetpilot#readme",
+  "dependencies": {
+    "concurrently": "^10.0.5"
+  }
+}
